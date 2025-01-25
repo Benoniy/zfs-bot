@@ -52,15 +52,15 @@ async def on_ready():
 async def presence_task():
     while True:
         result = subprocess.run("zpool status | grep state:", capture_output=True, shell=True, text=True)
-        message = result.stdout.replace("state:", "").strip()
+        message = result.stdout.replace("state:", "").strip().capitalize()
         print(message)
 
         status_flag = discord.Status.online
 
         match message:
-            case "online":
+            case "Online":
                 status_flag = discord.Status.online
-            case "degraded":
+            case "Degraded":
                 status_flag = discord.Status.idle
             case _:
                 status_flag = discord.Status.do_not_disturb
