@@ -89,7 +89,7 @@ async def presence_task():
 
 async def send_bot_alert(message):
     print(BOT_CHANNEL)
-    channel = client.get_channel(BOT_CHANNEL)
+    channel = client.fetch_channel(BOT_CHANNEL)
     await channel.send(message)
 
 @client.event
