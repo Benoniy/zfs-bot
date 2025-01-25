@@ -1,6 +1,6 @@
-token.txt
+config.cfg
 /venv
 .idea/*
 /__pycache__
 test.py
-log.txt
+*.txt

@@ -6,7 +6,7 @@ import asyncio
 import subprocess
 
 import discord
-from regex import regex
+import re
 
 import Commands
 
@@ -17,23 +17,29 @@ logging.basicConfig(filename="log.txt", level=logging.DEBUG, filemode="w")
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 TOKEN = ""
-BOT_PREFIX = "£"
+BOT_PREFIX = ""
+BOT_CHANNEL = ""
+STATUS_QUO = "Setup"
+
+def get_file_var(var, file):
+    content = '\r'.join(file.readlines())
+    return re.findall("{}=.*$".format(var),content,re.MULTILINE)[0]
 
 
 def setup():
     """ Get token & prefix from file and assigns to variables """
-    file = open("token.txt", "r")
+    
     global TOKEN
-    TOKEN = file.readline().replace("\n", "")
+    global BOT_PREFIX
+    global BOT_CHANNEL
+
+    file = open("config.cfg", "r")
+    TOKEN = get_file_var("TOKEN", file)
+    BOT_PREFIX = get_file_var("BOT_PREFIX", file)
+    BOT_CHANNEL = get_file_var("BOT_CHANNEL", file)
     file.close()
 
-    global BOT_PREFIX
-
     logging.info(f"Bot token '{TOKEN}' and prefix '{BOT_PREFIX}' are set")
-
-
-# ---[ ZFS Checking Code ]---
-
 
 
 # ---[ Bot Event Code ]---
@@ -46,10 +52,13 @@ async def on_ready():
                                  activity=discord.Activity(
                                      type=discord.ActivityType.playing,
                                      name="Starting bot!"))
+    
+    await send_bot_alert("test")
     await presence_task()
 
 
 async def presence_task():
+    global STATUS_QUO
     while True:
         result = subprocess.run("zpool status | grep state:", capture_output=True, shell=True, text=True)
         message = result.stdout.replace("state:", "").strip().capitalize()
@@ -65,6 +74,10 @@ async def presence_task():
             case _:
                 status_flag = discord.Status.do_not_disturb
 
+        if message != STATUS_QUO and STATUS_QUO != "Setup":
+            print("state change")
+
+        STATUS_QUO = message
 
         await client.change_presence(status=status_flag,
                                         activity=discord.Activity(
@@ -73,6 +86,9 @@ async def presence_task():
 
         await asyncio.sleep(15)
 
+async def send_bot_alert(message):
+    channel = client.get_channel(BOT_CHANNEL)
+    await channel.send(message)
 
 @client.event
 async def on_message(message):
@@ -90,12 +106,8 @@ async def on_message(message):
             command = args[0].lower()
             del args[0]
 
-        if command == "status":
-            await Commands.server_status(message, True)
-        elif command == "help":
+        if command == "help":
             await Commands.bot_help(message)
-        elif command == "start_server":
-            await Commands.start_server(message)
         else:
             await Commands.unrecognized_command(message)
 
