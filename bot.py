@@ -75,7 +75,7 @@ async def presence_task():
             case _:
                 status_flag = discord.Status.do_not_disturb
 
-        if message != STATUS_QUO and STATUS_QUO != "Setup":
+        if message != STATUS_QUO:
             print("state change")
             await send_bot_alert("ZFS state changed to: {}".format(status_flag))
 
