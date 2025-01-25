@@ -21,8 +21,7 @@ BOT_PREFIX = ""
 BOT_CHANNEL = ""
 STATUS_QUO = "Setup"
 
-def get_file_var(var, file):
-    content = '\r'.join(file.readlines())
+def get_file_var(var, content):
     return re.findall("{}=.*$".format(var),content,re.MULTILINE)[0]
 
 
@@ -34,10 +33,11 @@ def setup():
     global BOT_CHANNEL
 
     file = open("config.cfg", "r")
-    TOKEN = get_file_var("TOKEN", file)
-    BOT_PREFIX = get_file_var("BOT_PREFIX", file)
-    BOT_CHANNEL = get_file_var("BOT_CHANNEL", file)
+    content = '\r'.join(file.readlines())
     file.close()
+    TOKEN = get_file_var("TOKEN", content)
+    BOT_PREFIX = get_file_var("BOT_PREFIX", content)
+    BOT_CHANNEL = get_file_var("BOT_CHANNEL", content)
 
     logging.info(f"Bot token '{TOKEN}' and prefix '{BOT_PREFIX}' are set")
 
