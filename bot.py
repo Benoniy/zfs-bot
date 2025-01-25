@@ -52,13 +52,24 @@ async def on_ready():
 async def presence_task():
     while True:
         result = subprocess.run("zpool status | grep state:", capture_output=True, shell=True, text=True)
-        status = result.stderr.replace("state: ", "")
-        
+        message = result.stdout.replace("state:", "").strip()
+        print(message)
 
-        await client.change_presence(status=discord.Status.online,
+        status_flag = discord.Status.online
+
+        match message:
+            case "online":
+                status_flag = discord.Status.online
+            case "degraded":
+                status_flag = discord.Status.idle
+            case _:
+                status_flag = discord.Status.do_not_disturb
+
+
+        await client.change_presence(status=status_flag,
                                         activity=discord.Activity(
                                             type=discord.ActivityType.playing,
-                                            name="{}".format(status)))
+                                            name="Status: {}".format(message)))
 
         await asyncio.sleep(15)
 
