@@ -4,11 +4,8 @@
 import logging
 import asyncio
 import subprocess
-
 import discord
 import re
-
-import Commands
 
 logging.basicConfig(filename="log.txt", level=logging.DEBUG, filemode="w")
 
@@ -88,9 +85,11 @@ async def presence_task():
 
         await asyncio.sleep(15)
 
+
 async def send_bot_alert(message):
     channel = await client.fetch_channel(BOT_CHANNEL)
     await channel.send(message)
+
 
 @client.event
 async def on_message(message):
@@ -113,6 +112,7 @@ async def on_message(message):
         else:
             await Commands.unrecognized_command(message)
 
+
 def is_authorized(message):
     """ Checks user privileges """
     authorized = False
@@ -125,10 +125,11 @@ def is_authorized(message):
                     break
     return authorized
 
+
 if __name__ == "__main__":
     try:
         setup()
         client.run(TOKEN)
     except FileNotFoundError:
         logging.error("File was not found, "
-                      "are you sure that 'token.txt' exists?")
+                      "are you sure that 'config.cfg' exists?")
