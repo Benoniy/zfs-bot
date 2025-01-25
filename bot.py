@@ -88,6 +88,7 @@ async def presence_task():
         await asyncio.sleep(15)
 
 async def send_bot_alert(message):
+    print(BOT_CHANNEL)
     channel = client.get_channel(BOT_CHANNEL)
     await channel.send(message)
 
