@@ -54,7 +54,7 @@ async def on_ready():
                                      type=discord.ActivityType.playing,
                                      name="Starting bot!"))
     
-    await send_bot_alert("test")
+    
     await presence_task()
 
 
@@ -77,6 +77,7 @@ async def presence_task():
 
         if message != STATUS_QUO and STATUS_QUO != "Setup":
             print("state change")
+            await send_bot_alert("ZFS state changed to: {}".format(status_flag))
 
         STATUS_QUO = message
 
@@ -88,7 +89,6 @@ async def presence_task():
         await asyncio.sleep(15)
 
 async def send_bot_alert(message):
-    print(BOT_CHANNEL)
     channel = await client.fetch_channel(BOT_CHANNEL)
     await channel.send(message)
 
