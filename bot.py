@@ -22,7 +22,8 @@ BOT_CHANNEL = ""
 STATUS_QUO = "Setup"
 
 def get_file_var(var, content):
-    return re.findall("{}=.*$".format(var),content,re.MULTILINE)[0]
+    find = re.findall("{}=.*$".format(var),content,re.MULTILINE)[0].replace("{}=".format(var), "")
+    return find
 
 
 def setup():
