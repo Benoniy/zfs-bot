@@ -77,7 +77,7 @@ async def presence_task():
 
         if message != STATUS_QUO :
             print("state change")
-            await send_bot_alert("```ZFS STATE CHANGE\n-------------\n{}```".format(status_flag))
+            await send_bot_alert("```Zfs State Change\n----------------\n{}```".format(status_flag))
 
         STATUS_QUO = message
 
