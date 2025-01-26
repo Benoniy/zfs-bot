@@ -5,39 +5,47 @@ import logging
 import asyncio
 import subprocess
 import discord
-import re
+import json
 
-logging.basicConfig(filename="log.txt", level=logging.DEBUG, filemode="w")
+from settings import *
+from zfs import *
+
 
 # Global Variables
+CLIENT_SETTINGS = {}
+DEFAULT_SERVER_SETTINGS = {}
+SERVER_SETTINGS = {}
+STATUS_QUO = "Setup"
+
+# File Locations
+CONFIG_DIR = "config/"
+APP_SETTINGS_FILE = "{}app.json".format(CONFIG_DIR)
+SERVER_SETTINGS_FILE = "{}servers.json".format(CONFIG_DIR)
+LOGGING_FILE = "{}log.txt".format(CONFIG_DIR)
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
-TOKEN = ""
-BOT_PREFIX = ""
-BOT_CHANNEL = ""
-STATUS_QUO = "Setup"
 
-def get_file_var(var, content):
-    find = re.findall("{}=.*$".format(var),content,re.MULTILINE)[0].replace("{}=".format(var), "")
-    return find
-
+logging.basicConfig(filename="{}".format(LOGGING_FILE), level=logging.DEBUG, filemode="w")
 
 def setup():
     """ Get token & prefix from file and assigns to variables """
     
-    global TOKEN
-    global BOT_PREFIX
-    global BOT_CHANNEL
+    global CLIENT_SETTINGS
+    global DEFAULT_SERVER_SETTINGS
+    global SERVER_SETTINGS
 
-    file = open("config.cfg", "r")
-    content = '\r'.join(file.readlines())
-    file.close()
-    TOKEN = get_file_var("TOKEN", content)
-    BOT_PREFIX = get_file_var("BOT_PREFIX", content)
-    BOT_CHANNEL = get_file_var("BOT_CHANNEL", content)
+    CLIENT_SETTINGS = load_json(APP_SETTINGS_FILE)["client_settings"]
+    DEFAULT_SERVER_SETTINGS = load_json(APP_SETTINGS_FILE)["default_server_settings"]
+    
+    try:
+        SERVER_SETTINGS = load_json(SERVER_SETTINGS_FILE)
+    except FileNotFoundError:
+        open(SERVER_SETTINGS_FILE, "x")
+    except json.decoder.JSONDecodeError:
+        pass
 
-    logging.info(f"Bot token '{TOKEN}' and prefix '{BOT_PREFIX}' are set")
+    logging.info(f"Bot token '{CLIENT_SETTINGS["TOKEN"]}' is set")
 
 
 # ---[ Bot Event Code ]---
@@ -58,37 +66,51 @@ async def on_ready():
 async def presence_task():
     global STATUS_QUO
     while True:
-        result = subprocess.run("zpool status | grep state:", capture_output=True, shell=True, text=True)
-        message = result.stdout.replace("state:", "").strip().capitalize()
-        print(message)
+        zfs_status = zfs_pool_status()
 
-        status_flag = discord.Status.online
 
-        match message:
-            case "Online":
-                status_flag = discord.Status.online
-            case "Degraded":
-                status_flag = discord.Status.idle
-            case _:
-                status_flag = discord.Status.do_not_disturb
-
-        if message != STATUS_QUO and STATUS_QUO != "Setup":
+        if zfs_status["status_message"] != STATUS_QUO and STATUS_QUO != "Setup":
             print("state change")
-            await send_bot_alert("```Zfs State Change\n----------------\n{}```".format(status_flag))
+            await send_bot_alert("```Zfs State Change\n----------------\n{}```".format(zfs_status["status_flag"]))
 
-        STATUS_QUO = message
+        STATUS_QUO = zfs_status["status_message"]
 
-        await client.change_presence(status=status_flag,
+        await client.change_presence(status=zfs_status["status_flag"],
                                         activity=discord.Activity(
                                             type=discord.ActivityType.playing,
-                                            name="Status: {}".format(message)))
+                                            name="Status: {}".format(zfs_status["status_message"])))
 
         await asyncio.sleep(15)
 
 
+
 async def send_bot_alert(message):
-    channel = await client.fetch_channel(BOT_CHANNEL)
-    await channel.send(message)
+    channel_ids = []
+    for server in SERVER_SETTINGS:
+        channel_ids.append(SERVER_SETTINGS[server]["BOT_CHANNEL"])
+
+    set_channel_ids = set(channel_ids)
+    for channel_id in set_channel_ids:
+        channel = await client.fetch_channel(channel_id)
+        await channel.send(message)
+
+
+
+# Set default per-server setting
+async def set_default_settings(server_id):
+    if server_id not in SERVER_SETTINGS:
+        SERVER_SETTINGS.update({str(server_id) : DEFAULT_SERVER_SETTINGS})
+        save_json(SERVER_SETTINGS_FILE, SERVER_SETTINGS)
+
+# Set a per-server setting
+async def set_server_setting(server_id, setting, arg):
+    allowed_settings = [ "bot_channel", "bot_prefix" ]
+
+    if setting.lower() in allowed_settings:
+        SERVER_SETTINGS[server_id].update({setting.upper() : arg})
+    
+    save_json(SERVER_SETTINGS_FILE, SERVER_SETTINGS)
+
 
 
 @client.event
@@ -96,40 +118,30 @@ async def on_message(message):
     """  This is run when a message is received on any channel """
     author = message.author
     args = message.content.split(' ')
+    server_id = str(message.guild.id)
 
-    if author != client.user and args[0].lower() == BOT_PREFIX:
+    if author != client.user:
+        await set_default_settings(server_id)
 
-        del args[0]
+        if SERVER_SETTINGS[server_id]["BOT_PREFIX"] in args[0].lower():
+            command = args[0].lower().replace(SERVER_SETTINGS[server_id]["BOT_PREFIX"], "")
 
-        command = "help"
+            try: 
+                match command:
+                    case "set":
+                        try:
+                            await set_server_setting(server_id, args[1].lower(), args[2].lower())
+                            await message.channel.send("{} successfully changed!".format(args[1]))
+                        except:
+                            await message.channel.send("Error changing setting: {}!".format(args[1]))
+                    case "test_alert":
+                        await send_bot_alert("test!")
 
-        if len(args) > 0:
-            command = args[0].lower()
-            del args[0]
-
-        if command == "help":
-            await Commands.bot_help(message)
-        else:
-            await Commands.unrecognized_command(message)
-
-
-def is_authorized(message):
-    """ Checks user privileges """
-    authorized = False
-    for member in message.guild.members:
-        if member.id == message.author.id:
-            # Check this ID specifically
-            for r in member.roles:
-                if r.permissions.manage_guild:
-                    authorized = True
-                    break
-    return authorized
+            except IndexError:
+                await message.channel.send("Argument not found!")
+        
 
 
 if __name__ == "__main__":
-    try:
-        setup()
-        client.run(TOKEN)
-    except FileNotFoundError:
-        logging.error("File was not found, "
-                      "are you sure that 'config.cfg' exists?")
+    setup()
+    client.run(CLIENT_SETTINGS["TOKEN"])
