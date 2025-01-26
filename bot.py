@@ -45,7 +45,7 @@ def setup():
     except json.decoder.JSONDecodeError:
         pass
 
-    logging.info(f"Bot token '{CLIENT_SETTINGS["TOKEN"]}' is set")
+    logging.info("Bot token '{}' is set".format(CLIENT_SETTINGS["TOKEN"]))
 
 
 # ---[ Bot Event Code ]---
