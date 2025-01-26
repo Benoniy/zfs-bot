@@ -25,5 +25,6 @@ def zfs_pool_status():
             status_flag = discord.Status.idle
             message = pool_scan
     
+    print("ZFS reports state: {}, scan: {}".format(pool_state, pool_scan))
     return {"status_flag" : status_flag, "status_message" : message}
             
