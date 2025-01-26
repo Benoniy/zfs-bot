@@ -1,5 +1,6 @@
 import discord
 import subprocess
+import log_report
 
 def zfs_pool_status():
     state_result = subprocess.run("zpool status | grep state:", capture_output=True, shell=True, text=True)
@@ -25,6 +26,6 @@ def zfs_pool_status():
             status_flag = discord.Status.idle
             message = pool_scan
     
-    print("ZFS reports state: {}, scan: {}".format(pool_state, pool_scan))
+    log_report.log_info("ZFS reports state: {}, scan: {}".format(pool_state, pool_scan))
     return {"status_flag" : status_flag, "status_message" : message}
             

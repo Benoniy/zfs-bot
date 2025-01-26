@@ -7,6 +7,7 @@ import subprocess
 import discord
 import json
 
+import log_report
 from settings import *
 from zfs import *
 
@@ -45,15 +46,14 @@ def setup():
     except json.decoder.JSONDecodeError:
         pass
 
-    logging.info("Bot token '{}' is set".format(CLIENT_SETTINGS["TOKEN"]))
+    log_report.log_info("Bot token '{}' is set".format(CLIENT_SETTINGS["TOKEN"]))
 
 
 # ---[ Bot Event Code ]---
 @client.event
 async def on_ready():
     """ Set Discord Status """
-    logging.info("Bot is Ready")
-    print("Bot is Ready")
+    log_report.log_info("Bot is Ready")
     await client.change_presence(status=discord.Status.idle,
                                  activity=discord.Activity(
                                      type=discord.ActivityType.playing,
@@ -70,7 +70,7 @@ async def presence_task():
 
 
         if zfs_status["status_message"] != STATUS_QUO and STATUS_QUO != "Setup":
-            print("state change")
+            log_report.log_info("State changed from {} to {}".format(STATUS_QUO, zfs_status["status_message"]))
             await send_bot_alert("```Zfs State Change\n----------------\n{}```".format(zfs_status["status_flag"]))
 
         STATUS_QUO = zfs_status["status_message"]
