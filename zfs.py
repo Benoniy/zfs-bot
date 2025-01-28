@@ -16,10 +16,11 @@ def zfs_pool_status():
         case _:
             status_flag = discord.Status.do_not_disturb
 
+    message = pool_state
+
+
     scan_result = subprocess.run("zpool status | grep scan:", capture_output=True, shell=True, text=True)
     pool_scan = scan_result.stdout.replace("scan:", "").strip().capitalize()
-
-    message = pool_state
 
     match pool_scan:
         case "Resilvering":
