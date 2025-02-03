@@ -150,7 +150,8 @@ async def on_message(message):
         
 
 async def send_help():
-    await send_bot_alert("""Commands:
+    await send_bot_alert("""```
+                         Commands:
                          zfs [argument]
                             state - Reports the state of all zfs pools
 
@@ -159,8 +160,9 @@ async def send_help():
                             bot_prefix [prefix]      - Sets the prefix used to access bot command, it's $ by default
 
                          test_alert
-                         
-                         help""")
+
+                         help
+                         ```""")
 
 if __name__ == "__main__":
     setup()
