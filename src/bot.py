@@ -71,7 +71,7 @@ async def presence_task():
 
         if zfs_status["status_message"] != STATUS_QUO and STATUS_QUO != "Setup":
             log_report.log_info("State changed from {} to {}".format(STATUS_QUO, zfs_status["status_message"]))
-            await send_bot_alert("```Zfs State Change\n----------------\n{}```".format(zfs_status["status_message"]))
+            await send_bot_alert("```Zfs Status Change\n----------------\n{}```".format(zfs_status["status_message"]))
 
         STATUS_QUO = zfs_status["status_message"]
 
@@ -128,9 +128,12 @@ async def on_message(message):
 
             try: 
                 match command:
-                    case "status":
-                        zfs_status = zfs_pool_status()
-                        await send_bot_alert("```Zfs State Change\n----------------\n{}```".format(zfs_status["status_message"]))
+                    case "zfs":
+                        arg = args[1].lower()
+                        match arg:
+                            case "state":
+                                zfs_status = zfs_pool_status()
+                                await send_bot_alert("```Zfs Status Change\n----------------\n{}```".format(zfs_status["status_message"]))
                     case "set":
                         try:
                             await set_server_setting(server_id, args[1].lower(), args[2].lower())
