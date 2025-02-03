@@ -142,11 +142,25 @@ async def on_message(message):
                             await message.channel.send("Error changing setting: {}!".format(args[1]))
                     case "test_alert":
                         await send_bot_alert("test!")
+                    case _:
+                        await send_help()
 
             except IndexError:
                 await message.channel.send("Argument not found!")
         
 
+async def send_help():
+    await send_bot_alert("""Commands:
+                         zfs [argument]
+                            state - Reports the state of all zfs pools
+
+                         set [setting] [value]
+                            bot_channel [channel_id] - Sets the location of bot alert messages
+                            bot_prefix [prefix]      - Sets the prefix used to access bot command, it's $ by default
+
+                         test_alert
+                         
+                         help""")
 
 if __name__ == "__main__":
     setup()
