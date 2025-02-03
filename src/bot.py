@@ -128,6 +128,9 @@ async def on_message(message):
 
             try: 
                 match command:
+                    case "status":
+                        zfs_status = zfs_pool_status()
+                        await send_bot_alert("```Zfs State Change\n----------------\n{}```".format(zfs_status["status_message"]))
                     case "set":
                         try:
                             await set_server_setting(server_id, args[1].lower(), args[2].lower())

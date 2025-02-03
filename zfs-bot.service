@@ -1,0 +1,13 @@
+[Unit]
+Description=Zfs Monitoring Discord Bot
+After=network.target
+
+[Service]
+WorkingDirectory=
+ExecStart=python3 
+Restart=on-failure
+User=
+Group=
+
+[Install]
+WantedBy=multi-user.targe
