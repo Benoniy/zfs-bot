@@ -153,15 +153,15 @@ async def send_help():
     await send_bot_alert("""```
 Commands:
 zfs [argument]
-state - Reports the state of all zfs pools
+    state - Reports the state of all zfs pools
 
 set [setting] [value]
-bot_channel [channel_id] - Sets the location of bot alert messages
-bot_prefix [prefix]      - Sets the prefix used to access bot command, it's $ by default
+    bot_channel [channel_id] - Sets the location of bot alert messages
+    bot_prefix [prefix]      - Sets the prefix used to access bot command, it's $ by default
 
-test_alert
+test_alert - Simulates an alert
 
-help
+help - Displays this guide
 ```""")
 
 if __name__ == "__main__":
