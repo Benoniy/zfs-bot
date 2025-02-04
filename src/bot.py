@@ -184,7 +184,7 @@ class Bot (discord.Client):
         authorized = False
 
         if message.author.id == message.guild.owner.id:
-                authorized = True
+            authorized = True
 
         return authorized
 
