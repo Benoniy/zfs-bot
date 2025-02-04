@@ -32,7 +32,7 @@ class ZFS():
                 message = pool_scan
         
         self.discord_client.log_print("ZFS reports state: {}, scan: {}".format(pool_state, pool_scan))
-        return {"status_flag" : status_flag, "status_message" : message, "raw_state" : state_result}
+        return {"status_flag" : status_flag, "status_message" : message}
     
     async def presence_task(self):
         zfs_status = self.zfs_pool_status()
@@ -49,7 +49,7 @@ class ZFS():
             match arg:
                 case "state":
                     zfs_status = self.zfs_pool_status()
-                    await self.discord_client.send_bot_alert("```Zfs Status \n----------------\n{}```".format(zfs_status["raw_state"].stdout))
+                    await self.discord_client.send_bot_alert("```Zfs Status Change\n----------------\n{}```".format(zfs_status["status_message"]))
                     return True
         return False
 
