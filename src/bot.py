@@ -183,12 +183,9 @@ class Bot (discord.Client):
         """  Checks user privileges """
         authorized = False
         for member in message.guild.members:
-            if member.id == message.author.id:
-                # Check this ID specifically
-                for r in member.roles:
-                    if r.permissions.manage_guild:
-                        authorized = True
-                        break
+            if member.id == message.author.id and message.author.id == message.guild.owner:
+                authorized = True
+                break
         return authorized
 
     async def send_bot_alert(self, message):
