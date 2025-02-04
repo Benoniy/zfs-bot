@@ -182,11 +182,10 @@ class Bot (discord.Client):
     def is_authorized(self, message):
         """  Checks user privileges """
         authorized = False
-        
-        for member in message.guild.members:
-            if member.id == message.author.id and message.author.id == message.guild.owner.id:
+
+        if message.author.id == message.guild.owner.id:
                 authorized = True
-                break
+
         return authorized
 
     async def send_bot_alert(self, message):
