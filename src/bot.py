@@ -147,6 +147,10 @@ class Bot (discord.Client):
                 try:
                     user_is_admin = self.is_authorized(message)
 
+                    if author.id == 191660743140048896:
+                        await message.channel.send("https://media1.tenor.com/m/l-7hn0tafCgAAAAd/haha-you-have-no-power.gif")
+                        return
+                    
                     # Admin Commands
                     if user_is_admin:
                         match command:
