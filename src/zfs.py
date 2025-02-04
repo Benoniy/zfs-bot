@@ -57,16 +57,16 @@ class ZFS():
         if user_is_admin and command == "zfs":
             arg = args[1].lower()
             match arg:
-                case "state":
+                case "status":
                     zfs_status = self.zfs_pool_status()
-                    await self.discord_client.send_bot_alert("```Zfs Status Change\n----------------\n{}```".format(zfs_status["raw_output"]))
+                    await self.discord_client.send_bot_alert("```Zfs Status\n----------------\n{}```".format(zfs_status["raw_output"]))
                     return True
         return False
 
     def admin_help_string(self):
         return """
     zfs [argument]
-        state - Reports the state of all zfs pools
+        status - Reports the state of all zfs pools
 """
 
     def help_string(self):
