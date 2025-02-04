@@ -43,15 +43,21 @@ class ZFS():
         
         return zfs_status
     
-    async def on_message(self, args):
-        arg = args[1].lower()
-        match arg:
-            case "state":
-                zfs_status = self.zfs_pool_status()
-                await self.discord_client.send_bot_alert("```Zfs Status Change\n----------------\n{}```".format(zfs_status["status_message"]))
+    async def on_message(self, user_is_admin, command,  args):
+        if user_is_admin and command == "zfs":
+            arg = args[1].lower()
+            match arg:
+                case "state":
+                    zfs_status = self.zfs_pool_status()
+                    await self.discord_client.send_bot_alert("```Zfs Status Change\n----------------\n{}```".format(zfs_status["status_message"]))
+                    return True
+        return False
 
-    def help_string(self):
+    def admin_help_string(self):
         return """
     zfs [argument]
         state - Reports the state of all zfs pools
 """
+
+    def help_string(self):
+        return ""

@@ -39,7 +39,8 @@ class Bot (discord.Client):
         self.log_print("Bot token '{}' is set".format(self.CLIENT_SETTINGS["TOKEN"]))
 
         # ADDITIONAL SERVICES
-        self.zfs_service = zfs.ZFS(self)
+        self.services = {}
+        self.services["zfs"] = zfs.ZFS(self)
 
 
     #######################
@@ -105,13 +106,11 @@ class Bot (discord.Client):
 
     async def presence_task(self):
         while True:
-            presence_list = []
-            presence_list.append(await self.zfs_service.presence_task())
-
             final_flag = discord.Status.online
             final_message = "Online"
 
-            for presence in presence_list:
+            for key in self.services:
+                presence = await self.services[key].presence_task()
                 if presence["status_flag"] == discord.Status.online:
                     pass
                 else:
@@ -140,8 +139,11 @@ class Bot (discord.Client):
                 command = args[0].lower().replace(self.SERVER_SETTINGS[server_id]["BOT_PREFIX"], "")
 
                 try:
-                    is_admin_command = False
-                    if self.is_authorized(message):
+                    command_complete = False
+                    user_is_admin = self.is_authorized(message)
+
+                    # Admin Commands
+                    if user_is_admin:
                         match command:
                             case "set":
                                 try:
@@ -149,17 +151,22 @@ class Bot (discord.Client):
                                     await message.channel.send("{} successfully changed!".format(args[1]))
                                 except:
                                     await message.channel.send("Error changing setting: {}!".format(args[1]))
-                                is_admin_command = True
+                                command_complete = True
                             
                             case "test_alert":
                                 await self.send_bot_alert("test!")
-                                is_admin_command = True
+                                command_complete = True
 
-                            case "zfs":
-                                self.zfs_service.on_message(args)
-                                is_admin_command = True
 
-                    if not is_admin_command:
+                    # Service Commands
+                    if not command_complete:
+                        for key in self.services:
+                            command_complete = await self.services[key].on_message(user_is_admin, command, args)
+                            if command_complete:
+                                break
+
+                    # User Commands
+                    if not command_complete:
                         match command:
                             case _:
                                 await self.send_help(message)
@@ -218,7 +225,12 @@ Admin Commands:
         # SERVICE COMMANDS
         command_string += """
 Service Commands:"""
-        command_string += self.zfs_service.help_string()
+
+
+        for key in self.services:
+            if self.is_authorized(message):
+                command_string += self.services[key].admin_help_string()
+            command_string += self.services[key].help_string()
         command_string += """```"""
         await self.send_bot_alert(command_string)
 
