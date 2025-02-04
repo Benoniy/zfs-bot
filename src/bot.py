@@ -3,7 +3,6 @@ from logging import handlers
 import discord
 import asyncio
 import json
-import datetime
 
 import zfs
 
