@@ -173,7 +173,8 @@ class Bot (discord.Client):
                                     for member in message.guild.members:
                                         if str(member) == user_name:
                                             user_id = str(member.id)
-                                    if user_id == "": raise IndexError
+
+                                    if user_id == "": raise IndexError # Prevents the creation of the "" user when an error occurs
                                     
                                     # Generate default user permissions
                                     if user_id not in self.USER_PERMISSIONS[server_id]:
