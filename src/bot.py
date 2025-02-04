@@ -20,6 +20,7 @@ class Bot (discord.Client):
         self.CONFIG_DIR = "config/"
         self.APP_SETTINGS_FILE = "{}app.json".format(self.CONFIG_DIR)
         self.SERVER_SETTINGS_FILE = "{}servers.json".format(self.CONFIG_DIR)
+        self.USER_PERMISSIONS_FILE = "{}users.json".format(self.CONFIG_DIR)
         self.LOGGING_FILE = "{}log.txt".format(self.CONFIG_DIR)
 
         # Open Logging File
@@ -29,18 +30,23 @@ class Bot (discord.Client):
         self.CLIENT_SETTINGS = self.load_json(self.APP_SETTINGS_FILE)["client_settings"]
         self.DEFAULT_SERVER_SETTINGS = self.load_json(self.APP_SETTINGS_FILE)["default_server_settings"]
         
-        try:
-            self.SERVER_SETTINGS = self.load_json(self.SERVER_SETTINGS_FILE)
-        except FileNotFoundError:
-            open(self.SERVER_SETTINGS_FILE, "x")
-        except json.decoder.JSONDecodeError:
-            pass
+        self.SERVER_SETTINGS = self.collect_config(self.SERVER_SETTINGS_FILE)
+        self.USER_PERMISSIONS = self.collect_config(self.USER_PERMISSIONS_FILE)
 
         self.log_print("Bot token '{}' is set".format(self.CLIENT_SETTINGS["TOKEN"]))
 
         # ADDITIONAL SERVICES
         self.services = {}
         self.services["zfs"] = zfs.ZFS(self)
+
+
+    def collect_config(self, file):
+        try:
+            return self.load_json(file)
+        except FileNotFoundError:
+            open(file, "x")
+            self.save_json(file, {})
+            return {}
 
 
     #######################
@@ -139,7 +145,6 @@ class Bot (discord.Client):
                 command = args[0].lower().replace(self.SERVER_SETTINGS[server_id]["BOT_PREFIX"], "")
 
                 try:
-                    command_complete = False
                     user_is_admin = self.is_authorized(message)
 
                     # Admin Commands
@@ -151,25 +156,66 @@ class Bot (discord.Client):
                                     await message.channel.send("{} successfully changed!".format(args[1]))
                                 except:
                                     await message.channel.send("Error changing setting: {}!".format(args[1]))
-                                command_complete = True
+                                return
                             
+                            case "userperm":
+
+                                # Get arguments
+                                try:
+                                    user_name = args[2].lower()
+                                    requested_permission = args[3].lower()
+
+                                    if server_id not in self.USER_PERMISSIONS:
+                                        self.USER_PERMISSIONS[server_id] = {}
+                                    
+                                    # Get user ID
+                                    user_id = ""
+                                    for member in message.guild.members:
+                                        if str(member) == user_name:
+                                            user_id = str(member.id)
+                                    if user_id == "": raise IndexError
+                                    
+                                    # Generate default user permissions
+                                    if user_id not in self.USER_PERMISSIONS[server_id]:
+                                        self.USER_PERMISSIONS[server_id][user_id] = []
+
+                                except:
+                                    user_name = ""
+                                    requested_permission = ""
+
+
+                                # handle commands that have arguments
+                                match args[1]:
+                                    case "add":
+                                        if requested_permission not in self.USER_PERMISSIONS[server_id][user_id]:
+                                            self.USER_PERMISSIONS[server_id][user_id].append(requested_permission)
+                                    case "remove":
+                                        if requested_permission in self.USER_PERMISSIONS[server_id][user_id]:
+                                            self.USER_PERMISSIONS[server_id][user_id].remove(requested_permission)
+
+                                    case "list":
+                                        await self.send_bot_alert("```{}```".format(json.dumps(self.USER_PERMISSIONS[server_id], indent=4)))
+                                        return
+       
+                                
+                                self.save_json(self.USER_PERMISSIONS_FILE, self.USER_PERMISSIONS)
+                                return
+
                             case "test_alert":
                                 await self.send_bot_alert("test!")
-                                command_complete = True
+                                return
 
 
                     # Service Commands
-                    if not command_complete:
-                        for key in self.services:
-                            command_complete = await self.services[key].on_message(user_is_admin, command, args)
-                            if command_complete:
-                                break
+                    for key in self.services:
+                        command_complete = await self.services[key].on_message(user_is_admin, command, args)
+                        if command_complete:
+                            return
 
                     # User Commands
-                    if not command_complete:
-                        match command:
-                            case _:
-                                await self.send_help(message)
+                    match command:
+                        case _:
+                            await self.send_help(message)
 
 
                 except IndexError:
@@ -212,9 +258,14 @@ User Commands:
         if self.is_authorized(message):
             command_string += """
 Admin Commands:
-    set [setting] [value]
+    set [setting]
         bot_channel [channel_id] - Sets the location of bot alert messages
         bot_prefix [prefix]      - Sets the prefix used to access bot command, it's $ by default
+    
+    userperm [command]
+        add [user] [permission]    - Adds a permission to a user
+        remove [user] [permission] - Removes a permission from a user
+        list                       - Lists all user ID's and their permissions
 
     test_alert - Simulates an alert
     """
