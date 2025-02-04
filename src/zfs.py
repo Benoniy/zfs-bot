@@ -11,7 +11,6 @@ class ZFS():
             state_result = subprocess.run("zpool status", capture_output=True, shell=True, text=True,)
             
             lines = state_result.stdout.split("\n")
-            print(lines)
 
             for line in lines:
                 if "state" in line:
@@ -41,7 +40,7 @@ class ZFS():
             self.discord_client.log_print("ZFS reports state: {}, scan: {}".format(pool_state, pool_scan))
             return {"status_flag" : status_flag, "status_message" : message, "raw_output" : state_result.stdout}
         except UnboundLocalError:
-            print("No ZFS Available")
+            self.discord_client.log_print("No ZFS Available")
             return {"status_flag" : discord.Status.online, "status_message" : "No ZFS Available", "raw_output" : state_result.stdout}
     
     async def presence_task(self):
