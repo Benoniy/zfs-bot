@@ -138,21 +138,32 @@ class Bot (discord.Client):
 
             if self.SERVER_SETTINGS[server_id]["BOT_PREFIX"] in args[0].lower():
                 command = args[0].lower().replace(self.SERVER_SETTINGS[server_id]["BOT_PREFIX"], "")
-                print("working")
-                try: 
-                    match command:
-                        case "set":
-                            try:
-                                await self.set_server_setting(server_id, args[1].lower(), args[2].lower())
-                                await message.channel.send("{} successfully changed!".format(args[1]))
-                            except:
-                                await message.channel.send("Error changing setting: {}!".format(args[1]))
-                        case "test_alert":
-                            await self.send_bot_alert("test!")
-                        case "zfs":
-                            self.zfs_service.on_message(args)
-                        case _:
-                            await self.send_help()
+
+                try:
+                    is_admin_command = False
+                    if self.is_authorized(message):
+                        match command:
+                            case "set":
+                                try:
+                                    await self.set_server_setting(server_id, args[1].lower(), args[2].lower())
+                                    await message.channel.send("{} successfully changed!".format(args[1]))
+                                except:
+                                    await message.channel.send("Error changing setting: {}!".format(args[1]))
+                                is_admin_command = True
+                            
+                            case "test_alert":
+                                await self.send_bot_alert("test!")
+                                is_admin_command = True
+
+                            case "zfs":
+                                self.zfs_service.on_message(args)
+                                is_admin_command = True
+
+                    if not is_admin_command:
+                        match command:
+                            case _:
+                                await self.send_help(message)
+
 
                 except IndexError:
                     await message.channel.send("Argument not found!")
@@ -161,6 +172,18 @@ class Bot (discord.Client):
     #######################
     # HELPER METHODS
     #######################
+    def is_authorized(self, message):
+        """  Checks user privileges """
+        authorized = False
+        for member in message.guild.members:
+            if member.id == message.author.id:
+                # Check this ID specifically
+                for r in member.roles:
+                    if r.permissions.manage_guild:
+                        authorized = True
+                        break
+        return authorized
+
     async def send_bot_alert(self, message):
         channel_ids = []
         for server in self.SERVER_SETTINGS:
@@ -172,17 +195,29 @@ class Bot (discord.Client):
             await channel.send(message)
 
 
-    async def send_help(self):
+    async def send_help(self, message):
+
+        # STANDARD COMMANDS
         command_string = """```
-Commands:
+User Commands:
+    help - Displays this guide
+"""
+
+
+        # ADMIN COMMANDS
+        if self.is_authorized(message):
+            command_string += """
+Admin Commands:
     set [setting] [value]
         bot_channel [channel_id] - Sets the location of bot alert messages
         bot_prefix [prefix]      - Sets the prefix used to access bot command, it's $ by default
 
     test_alert - Simulates an alert
+    """
 
-    help - Displays this guide
-"""
+        # SERVICE COMMANDS
+        command_string += """
+Service Commands:"""
         command_string += self.zfs_service.help_string()
         command_string += """```"""
         await self.send_bot_alert(command_string)
