@@ -7,32 +7,42 @@ class ZFS():
         self.STATUS_QUO = "Setup"
 
     def zfs_pool_status(self):
-        state_result = subprocess.run("zpool status | grep state:", capture_output=True, shell=True, text=True)
-        pool_state = state_result.stdout.replace("state:", "").strip().capitalize()
+        try:
+            state_result = subprocess.run("zpool status", capture_output=True, shell=True, text=True,)
+            
+            lines = state_result.stdout.split("\n")
+            print(lines)
 
-        status_flag = discord.Status.online
+            for line in lines:
+                if "state" in line:
+                    pool_state = line.replace("state:", "").strip().capitalize()
 
-        match pool_state:
-            case "Online":
-                status_flag = discord.Status.online
-            case "Degraded":
-                status_flag = discord.Status.idle
-            case _:
-                status_flag = discord.Status.do_not_disturb
+            status_flag = discord.Status.online
 
-        message = pool_state
+            match pool_state:
+                case "Online":
+                    status_flag = discord.Status.online
+                case "Degraded":
+                    status_flag = discord.Status.idle
+                case _:
+                    status_flag = discord.Status.do_not_disturb
+
+            message = pool_state
 
 
-        scan_result = subprocess.run("zpool status | grep scan:", capture_output=True, shell=True, text=True)
-        pool_scan = scan_result.stdout.replace("scan:", "").strip().capitalize()
+            scan_result = subprocess.run("zpool status | grep scan:", capture_output=True, shell=True, text=True)
+            pool_scan = scan_result.stdout.replace("scan:", "").strip().capitalize()
 
-        match pool_scan:
-            case "Resilvering":
-                status_flag = discord.Status.idle
-                message = pool_scan
-        
-        self.discord_client.log_print("ZFS reports state: {}, scan: {}".format(pool_state, pool_scan))
-        return {"status_flag" : status_flag, "status_message" : message}
+            match pool_scan:
+                case "Resilvering":
+                    status_flag = discord.Status.idle
+                    message = pool_scan
+            
+            self.discord_client.log_print("ZFS reports state: {}, scan: {}".format(pool_state, pool_scan))
+            return {"status_flag" : status_flag, "status_message" : message, "raw_output" : state_result.stdout}
+        except UnboundLocalError:
+            print("No ZFS Available")
+            return {"status_flag" : discord.Status.online, "status_message" : "No ZFS Available", "raw_output" : state_result.stdout}
     
     async def presence_task(self):
         zfs_status = self.zfs_pool_status()
