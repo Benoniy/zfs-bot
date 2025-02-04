@@ -49,7 +49,7 @@ class ZFS():
             match arg:
                 case "state":
                     zfs_status = self.zfs_pool_status()
-                    await self.discord_client.send_bot_alert("```Zfs Status \n----------------\n{}```".format(zfs_status["raw_state"]))
+                    await self.discord_client.send_bot_alert("```Zfs Status \n----------------\n{}```".format(zfs_status["raw_state"].stdout))
                     return True
         return False
 
