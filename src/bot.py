@@ -1,4 +1,5 @@
 import logging
+from logging import handlers
 import discord
 import asyncio
 import json
@@ -24,7 +25,12 @@ class Bot (discord.Client):
         self.LOGGING_FILE = "{}log.txt".format(self.CONFIG_DIR)
 
         # Open Logging File
-        logging.basicConfig(filename="{}".format(self.LOGGING_FILE), level=logging.DEBUG, filemode="w")
+        root_logger = logging.getLogger()
+        formatter   = logging.Formatter('%(asctime)s :%(levelname)s: %(message)s')
+        log_handler = handlers.TimedRotatingFileHandler(filename="{}".format(self.LOGGING_FILE), when='midnight', interval=1, backupCount=7)
+        log_handler.setFormatter(formatter)
+        root_logger.addHandler(log_handler)
+        root_logger.setLevel(logging.INFO)
 
         # Load and Create Settings
         self.CLIENT_SETTINGS = self.load_json(self.APP_SETTINGS_FILE)["client_settings"]
@@ -53,11 +59,9 @@ class Bot (discord.Client):
     # LOGGING
     #######################
     def log_print(self, message):
-        current_time = datetime.datetime.now().isoformat()
-        log_message = "{}: {}".format(current_time, message)
 
-        print(log_message)
-        logging.info(log_message)
+        print(message)
+        logging.info(message)
 
 
     #######################
