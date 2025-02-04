@@ -58,7 +58,6 @@ class Bot (discord.Client):
     # LOGGING
     #######################
     def log_print(self, message):
-
         print(message)
         logging.info(message)
 
