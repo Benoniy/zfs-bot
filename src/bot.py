@@ -5,7 +5,7 @@ import asyncio
 import json
 
 import zfs
-
+import vintage
 
 class Bot (discord.Client):
 
@@ -43,6 +43,7 @@ class Bot (discord.Client):
         # ADDITIONAL SERVICES
         self.services = {}
         self.services["zfs"] = zfs.ZFS(self)
+        self.services["vintage"] = vintage.Vintage(self)
 
 
     def collect_config(self, file):
