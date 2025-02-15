@@ -10,13 +10,13 @@ class Vintage():
         return {"status_flag" : discord.Status.online, "status_message" : "", "raw_output" : ""}
     
     async def is_running(self):
-        return subprocess.run("docker inspect {} | jq .[0].State.Status".format(self.container_name), capture_output=True, shell=True, text=True)
+        return subprocess.run("docker inspect {} | jq .[0].State.Status".format(self.container_name), capture_output=True, shell=True, text=True).stdout
 
     async def start(self):
-        return subprocess.run("docker start {}".format(self.container_name), capture_output=True, shell=True, text=True)
+        return subprocess.run("docker start {}".format(self.container_name), capture_output=True, shell=True, text=True).stdout
 
     async def stop(self):
-        return subprocess.run("docker stop {}".format(self.container_name), capture_output=True, shell=True, text=True)
+        return subprocess.run("docker stop {}".format(self.container_name), capture_output=True, shell=True, text=True).stdout
 
 
     async def on_message(self, user_is_admin, command,  args):
