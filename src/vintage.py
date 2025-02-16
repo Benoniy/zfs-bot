@@ -20,7 +20,7 @@ class Vintage():
 
 
     async def on_message(self, user_is_admin, command,  args):
-        if user_is_admin and command == "vintage":
+        if command == "vintage":
             arg = args[1].lower()
             match arg:
                 case "status":
