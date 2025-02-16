@@ -30,10 +30,12 @@ class Vintage():
                 case "start":
                     await self.discord_client.send_bot_alert("```Starting```")
                     await self.start()
+                    await self.discord_client.send_bot_alert("```Started```")
                     return True
                 case "stop":
                     await self.discord_client.send_bot_alert("```Stopping```")
                     await self.stop()
+                    await self.discord_client.send_bot_alert("```Stopped```")
                     return True
         return False
 
