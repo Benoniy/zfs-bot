@@ -28,12 +28,12 @@ class Vintage():
                     await self.discord_client.send_bot_alert("```Vintage Story Status\n--------------------------\n{}```".format(status))
                     return True
                 case "start":
-                    await self.start()
                     await self.discord_client.send_bot_alert("```Starting```")
+                    await self.start()
                     return True
                 case "stop":
-                    await self.stop()
                     await self.discord_client.send_bot_alert("```Stopping```")
+                    await self.stop()
                     return True
         return False
 
