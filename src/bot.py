@@ -286,6 +286,7 @@ Service Commands:"""
         for key in self.services:
             if self.is_authorized(message):
                 command_string += self.services[key].admin_help_string()
+            print(self.services[key].help_string())
             command_string += self.services[key].help_string()
         command_string += """```"""
         await self.send_bot_alert(command_string)

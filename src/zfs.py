@@ -62,11 +62,12 @@ class ZFS():
                     return True
         return False
 
+    def help_string(self):
+        return ""
+    
     def admin_help_string(self):
         return """
     zfs [argument]
         status - Reports the state of all zfs pools
 """
 
-    def help_string(self):
-        return ""

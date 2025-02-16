@@ -35,7 +35,7 @@ class Vintage():
                     return True
         return False
 
-    def admin_help_string(self):
+    def help_string(self):
         return """
     vintage [argument]
         status - Reports the status of the vintage story server
@@ -43,5 +43,6 @@ class Vintage():
         stop - stops the server
 """
 
-    def help_string(self):
+    def admin_help_string(self):
         return ""
+
