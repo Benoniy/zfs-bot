@@ -150,10 +150,6 @@ class Bot (discord.Client):
                 try:
                     user_is_admin = self.is_authorized(message)
 
-                    if author.id == 191660743140048896:
-                        await message.channel.send("https://media1.tenor.com/m/l-7hn0tafCgAAAAd/haha-you-have-no-power.gif")
-                        return
-                    
                     # Admin Commands
                     if user_is_admin:
                         match command:
@@ -220,10 +216,15 @@ class Bot (discord.Client):
                         if command_complete:
                             return
 
+                    if author.id == 191660743140048896:
+                        await message.channel.send("https://media1.tenor.com/m/l-7hn0tafCgAAAAd/haha-you-have-no-power.gif")
+                        return
+                    
                     # User Commands
                     match command:
                         case _:
                             await self.send_help(message)
+
 
 
                 except IndexError:
