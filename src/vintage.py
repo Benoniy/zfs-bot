@@ -15,7 +15,6 @@ class Vintage():
             arg = args[1].lower()
             match arg:
                 case "status":
-                    print("here")
                     await self.docker_interface.on_message(True, "docker", ["status", self.container_name])
                     return True
                 case "start":
