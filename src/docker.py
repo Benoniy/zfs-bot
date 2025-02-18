@@ -10,7 +10,7 @@ class Docker():
     
     async def interpret_command(self, command, args=[], additions=""):
         command_args = " ".join(args)
-        return subprocess.run("docker {} {} {}".format(command, command_args, additions), capture_output=True, shell=True, text=True).stdout
+        return subprocess.run("docker {} {} {}".format(command, command_args, additions), capture_output=True, shell=True, text=True).stdout.strip()
 
     async def on_message(self, user_is_admin, command,  args):
         if command == "docker" and user_is_admin:
@@ -24,14 +24,14 @@ class Docker():
                 case "start":
                     await self.discord_client.send_bot_alert("```Starting```")
                     output = await self.interpret_command("start", args[1:])
-                    print(output)
-                    await self.discord_client.send_bot_alert("```Started```")
+                    if output == " ".join(args[1:]):
+                        await self.discord_client.send_bot_alert("```Started```")
                     return True
                 case "stop":
                     await self.discord_client.send_bot_alert("```Stopping```")
                     output = await self.interpret_command("stop", args[1:])
-                    print(output)
-                    await self.discord_client.send_bot_alert("```Stopped```")
+                    if output == " ".join(args[1:]):
+                        await self.discord_client.send_bot_alert("```Stopped```")
                     return True
         return False
 
