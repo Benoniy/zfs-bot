@@ -28,6 +28,7 @@ class Docker(Service):
                 case "stop":
                     await self.discord_client.send_bot_alert("```Stopping```")
                     output = await self.interpret_command("stop", args[1:])
+                    print(output)
                     if output == " ".join(args[1:]).strip():
                         await self.discord_client.send_bot_alert("```Error stopping container\n{}```".format(output))
                     return True
@@ -40,4 +41,3 @@ class Docker(Service):
         start [container_name] - starts a container
         stop [container_name] - stops a container
 """
-
