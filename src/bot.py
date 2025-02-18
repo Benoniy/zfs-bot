@@ -5,6 +5,7 @@ import asyncio
 import json
 
 import zfs
+import docker
 import vintage
 
 class Bot (discord.Client):
@@ -43,6 +44,7 @@ class Bot (discord.Client):
         # ADDITIONAL SERVICES
         self.services = {}
         self.services["zfs"] = zfs.ZFS(self)
+        self.services["docker"] = docker.Docker(self)
         self.services["vintage"] = vintage.Vintage(self)
 
 
