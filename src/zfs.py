@@ -1,9 +1,10 @@
 import discord
+from service import Service
 import subprocess
 
-class ZFS():
+class ZFS(Service):
     def __init__(self, discord_client):
-        self.discord_client = discord_client
+        super().__init__(discord_client)
         self.STATUS_QUO = "Setup"
 
     def zfs_pool_status(self):
@@ -61,9 +62,6 @@ class ZFS():
                     await self.discord_client.send_bot_alert("```Zfs Status\n----------------\n{}```".format(zfs_status["raw_output"]))
                     return True
         return False
-
-    def help_string(self):
-        return ""
     
     def admin_help_string(self):
         return """

@@ -1,14 +1,10 @@
-import discord
-import subprocess
+from service import Service
 
-class Vintage():
+class Vintage(Service):
     def __init__(self, discord_client):
-        self.discord_client = discord_client
+        super().__init__(discord_client)
         self.docker_interface = discord_client.services["docker"]
         self.container_name = "vintage-story-vs-server-1"
-
-    async def presence_task(self):
-        return {"status_flag" : discord.Status.online, "status_message" : "", "raw_output" : ""}
 
     async def on_message(self, user_is_admin, command,  args):
         if command == "vintage":
@@ -32,7 +28,4 @@ class Vintage():
         start - starts the server
         stop - stops the server
 """
-
-    def admin_help_string(self):
-        return ""
 
