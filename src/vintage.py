@@ -4,38 +4,24 @@ import subprocess
 class Vintage():
     def __init__(self, discord_client):
         self.discord_client = discord_client
+        self.docker_interface = discord_client.services["docker"]
         self.container_name = "vintage-story-vs-server-1"
 
     async def presence_task(self):
         return {"status_flag" : discord.Status.online, "status_message" : "", "raw_output" : ""}
-    
-    async def is_running(self):
-        return subprocess.run("docker inspect {} | jq .[0].State.Status".format(self.container_name), capture_output=True, shell=True, text=True).stdout
-
-    async def start(self):
-        return subprocess.run("docker start {}".format(self.container_name), capture_output=True, shell=True, text=True).stdout
-
-    async def stop(self):
-        return subprocess.run("docker stop {}".format(self.container_name), capture_output=True, shell=True, text=True).stdout
-
 
     async def on_message(self, user_is_admin, command,  args):
         if command == "vintage":
             arg = args[1].lower()
             match arg:
                 case "status":
-                    status = await self.is_running()
-                    await self.discord_client.send_bot_alert("```Vintage Story Status\n--------------------------\n{}```".format(status))
+                    await self.docker_interface.on_message(True, "docker", ["status", self.container_name])
                     return True
                 case "start":
-                    await self.discord_client.send_bot_alert("```Starting```")
-                    await self.start()
-                    await self.discord_client.send_bot_alert("```Started```")
+                    await self.docker_interface.on_message(True, "docker", ["start", self.container_name])
                     return True
                 case "stop":
-                    await self.discord_client.send_bot_alert("```Stopping```")
-                    await self.stop()
-                    await self.discord_client.send_bot_alert("```Stopped```")
+                    await self.docker_interface.on_message(True, "docker", ["stop", self.container_name])
                     return True
         return False
 
