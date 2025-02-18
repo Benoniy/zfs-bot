@@ -25,7 +25,7 @@ class Docker():
                 case "start":
                     await self.discord_client.send_bot_alert("```Starting```")
                     output = await self.interpret_command("start", args[1])
-                    print(output)
+                    print(output.split(" "))
                     await self.discord_client.send_bot_alert("```Started```")
                     return True
                 case "stop":
