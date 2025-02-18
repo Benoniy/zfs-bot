@@ -14,6 +14,7 @@ class Docker():
         return subprocess.run("docker {} {} {}".format(command, command_args, additions), capture_output=True, shell=True, text=True).stdout
 
     async def on_message(self, user_is_admin, command,  args):
+        print("docker")
         if command == "docker" and user_is_admin:
             arg = args[1].lower()
             match arg:
