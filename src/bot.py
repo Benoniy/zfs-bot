@@ -140,14 +140,21 @@ class Bot (discord.Client):
     async def on_message(self, message):
         """  This is run when a message is received on any channel """
         author = message.author
-        args = message.content.split(' ')
+        
         server_id = str(message.guild.id)
+
+        full_args = message.content.split(' ')
+        init_command = full_args[0].lower()
+        try:
+            add_args = full_args[1:]
+        except:
+            add_args = []
 
         if author != self.user:
             await self.set_default_settings(server_id)
 
-            if self.SERVER_SETTINGS[server_id]["BOT_PREFIX"] in args[0].lower():
-                command = args[0].lower().replace(self.SERVER_SETTINGS[server_id]["BOT_PREFIX"], "")
+            if self.SERVER_SETTINGS[server_id]["BOT_PREFIX"] in init_command:
+                command = init_command.replace(self.SERVER_SETTINGS[server_id]["BOT_PREFIX"], "")
 
                 try:
                     user_is_admin = self.is_authorized(message)
@@ -157,18 +164,18 @@ class Bot (discord.Client):
                         match command:
                             case "set":
                                 try:
-                                    await self.set_server_setting(server_id, args[1].lower(), args[2].lower())
-                                    await message.channel.send("{} successfully changed!".format(args[1]))
+                                    await self.set_server_setting(server_id, add_args[0].lower(), add_args[1].lower())
+                                    await message.channel.send("{} successfully changed!".format(add_args[0]))
                                 except:
-                                    await message.channel.send("Error changing setting: {}!".format(args[1]))
+                                    await message.channel.send("Error changing setting: {}!".format(add_args[0]))
                                 return
                             
                             case "userperm":
 
                                 # Get arguments
                                 try:
-                                    user_name = args[2].lower()
-                                    requested_permission = args[3].lower()
+                                    user_name = add_args[1].lower()
+                                    requested_permission = add_args[2].lower()
 
                                     if server_id not in self.USER_PERMISSIONS:
                                         self.USER_PERMISSIONS[server_id] = {}
@@ -191,7 +198,7 @@ class Bot (discord.Client):
 
 
                                 # handle commands that have arguments
-                                match args[1]:
+                                match add_args[0]:
                                     case "add":
                                         if requested_permission not in self.USER_PERMISSIONS[server_id][user_id]:
                                             self.USER_PERMISSIONS[server_id][user_id].append(requested_permission)
@@ -214,7 +221,7 @@ class Bot (discord.Client):
 
                     # Service Commands
                     for key in self.services:
-                        command_complete = await self.services[key].on_message(user_is_admin, command, args)
+                        command_complete = await self.services[key].on_message(user_is_admin, command, add_args)
                         if command_complete:
                             return
 

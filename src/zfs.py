@@ -54,7 +54,7 @@ class ZFS():
     
     async def on_message(self, user_is_admin, command,  args):
         if user_is_admin and command == "zfs":
-            arg = args[1].lower()
+            arg = args[0].lower()
             match arg:
                 case "status":
                     zfs_status = self.zfs_pool_status()

@@ -12,16 +12,16 @@ class Vintage():
 
     async def on_message(self, user_is_admin, command,  args):
         if command == "vintage":
-            arg = args[1].lower()
+            arg = args[0].lower()
             match arg:
                 case "status":
-                    await self.docker_interface.on_message(True, "docker", ["", "status", self.container_name])
+                    await self.docker_interface.on_message(True, "docker", ["status", self.container_name])
                     return True
                 case "start":
-                    await self.docker_interface.on_message(True, "docker", ["", "start", self.container_name])
+                    await self.docker_interface.on_message(True, "docker", ["start", self.container_name])
                     return True
                 case "stop":
-                    await self.docker_interface.on_message(True, "docker", ["", "stop", self.container_name])
+                    await self.docker_interface.on_message(True, "docker", ["stop", self.container_name])
                     return True
         return False
 
