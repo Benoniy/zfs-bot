@@ -20,16 +20,18 @@ class Docker():
                 case "status":
                     print("status")
                     output = await self.interpret_command("inspect", args[1], "| jq .[0].State.Status")
-                    await self.discord_client.send_bot_alert("```Container Status\n--------------------------\n{}```".format(output))
+                    await self.discord_client.send_bot_alert("```\"{}\" Status\n--------------------------\n{}```".format(args[1], output))
                     return True
                 case "start":
                     await self.discord_client.send_bot_alert("```Starting```")
                     output = await self.interpret_command("start", args[1])
+                    print(output)
                     await self.discord_client.send_bot_alert("```Started```")
                     return True
                 case "stop":
                     await self.discord_client.send_bot_alert("```Stopping```")
                     output = await self.interpret_command("stop", args[1])
+                    print(output)
                     await self.discord_client.send_bot_alert("```Stopped```")
                     return True
         return False
