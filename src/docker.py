@@ -10,6 +10,8 @@ class Docker():
     
     async def interpret_command(self, command, args=[], additions=""):
         command_args = " ".join(args)
+        print(args)
+        print(command_args)
         return subprocess.run("docker {} {} {}".format(command, command_args, additions), capture_output=True, shell=True, text=True).stderr
 
     async def on_message(self, user_is_admin, command,  args):
