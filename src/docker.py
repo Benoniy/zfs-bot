@@ -14,11 +14,12 @@ class Docker():
         return subprocess.run("docker {} {} {}".format(command, command_args, additions), capture_output=True, shell=True, text=True).stdout
 
     async def on_message(self, user_is_admin, command,  args):
-        print("docker")
+        print(user_is_admin, command,  args)
         if command == "docker" and user_is_admin:
             arg = args[1].lower()
             match arg:
                 case "status":
+                    print("status")
                     output = await self.interpret_command("inspect", args[2:], "| jq .[0].State.Status")
                     await self.discord_client.send_bot_alert("```Container Status\n--------------------------\n{}```".format(output))
                     return True
