@@ -1,4 +1,3 @@
-import discord
 from service import Service
 import subprocess
 
