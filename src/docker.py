@@ -26,12 +26,14 @@ class Docker():
                     output = await self.interpret_command("start", args[1:])
                     if output == " ".join(args[1:]):
                         await self.discord_client.send_bot_alert("```Started```")
+                    else:
+                        await self.discord_client.send_bot_alert("```Error starting container\n{}```".format(output))
                     return True
                 case "stop":
                     await self.discord_client.send_bot_alert("```Stopping```")
                     output = await self.interpret_command("stop", args[1:])
                     if output == " ".join(args[1:]):
-                        await self.discord_client.send_bot_alert("```Stopped```")
+                        await self.discord_client.send_bot_alert("```Error stopping container\n{}```".format(output))
                     return True
         return False
 
