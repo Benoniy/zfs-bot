@@ -17,8 +17,11 @@ class Vintage(Service):
                     await self.docker_interface.on_message(True, "docker", ["start", self.container_name])
                     return True
                 case "stop":
+                    await self.docker_interface.on_message(True, "docker", ["exec", self.container_name, "sh -c \"/var/vintage_story/server/server.sh command autosavenow\""])
                     await self.docker_interface.on_message(True, "docker", ["stop", self.container_name])
                     return True
+                case "save":
+                    await self.docker_interface.on_message(True, "docker", ["exec", self.container_name, "sh -c \"/var/vintage_story/server/server.sh command autosavenow\""])
         return False
 
     def help_string(self):
@@ -27,5 +30,6 @@ class Vintage(Service):
         status - Reports the status of the vintage story server
         start - starts the server
         stop - stops the server
+        save - saves the server state
 """
 

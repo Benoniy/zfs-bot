@@ -33,6 +33,9 @@ class Docker(Service):
                     else:
                         await self.discord_client.send_bot_alert("```Error stopping container\n{}```".format(output))
                     return True
+                case "exec":
+                    output = await self.interpret_command("exec -d", args[1:])
+                    return True
         return False
 
     def admin_help_string(self):
@@ -41,4 +44,5 @@ class Docker(Service):
         status [container_name] - Reports the status of a container
         start [container_name] - starts a container
         stop [container_name] - stops a container
+        exec [container_name] [commands] - Run a command on a container 
 """
