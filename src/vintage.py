@@ -9,6 +9,7 @@ class Vintage(Service):
     async def on_message(self, user_is_admin, command,  args):
         if command == "vintage":
             arg = args[0].lower()
+            print(arg)
             match arg:
                 case "status":
                     await self.docker_interface.on_message(True, "docker", ["status", self.container_name])
