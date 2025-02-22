@@ -23,6 +23,7 @@ class Vintage(Service):
                     return True
                 case "save":
                     await self.docker_interface.on_message(True, "docker", ["exec", self.container_name, "sh -c \"/var/vintage_story/server/server.sh command autosavenow\""])
+                    return True
         return False
 
     def help_string(self):

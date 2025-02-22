@@ -35,6 +35,7 @@ class Docker(Service):
                     return True
                 case "exec":
                     output = await self.interpret_command("exec -d", args[1:])
+                    await self.discord_client.send_bot_alert("```Executing command on {}: {}\n```".format(args[1], args[2:]))
                     return True
         return False
 
