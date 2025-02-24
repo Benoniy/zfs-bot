@@ -9,33 +9,43 @@ class Docker(Service):
         command_args = " ".join(args)
         return subprocess.run("docker {} {} {}".format(command, command_args, additions), capture_output=True, shell=True, text=True).stdout.strip()
 
-    async def on_message(self, user_is_admin, command,  args):
+    async def on_message(self, user_is_admin, command,  args, send_notifications=True):
         if command == "docker" and user_is_admin:
             arg = args[0].lower()
             match arg:
                 case "status":
                     output = await self.interpret_command("inspect", args[1:], "| jq .[0].State.Status")
-                    await self.discord_client.send_bot_alert("```\"{}\" status: {}```".format(args[1], output))
+                    if send_notifications:
+                        await self.discord_client.send_bot_alert("```\"{}\" status: {}```".format(args[1], output))
                     return True
                 case "start":
-                    await self.discord_client.send_bot_alert("```Starting```")
+                    if send_notifications:
+                        await self.discord_client.send_bot_alert("```Starting```")
+                    
                     output = await self.interpret_command("start", args[1:])
-                    if output == " ".join(args[1:]).strip():
+
+                    if output == " ".join(args[1:]).strip() and send_notifications:
                         await self.discord_client.send_bot_alert("```Started```")
                     else:
                         await self.discord_client.send_bot_alert("```Error starting container\n{}```".format(output))
+                    
                     return True
                 case "stop":
-                    await self.discord_client.send_bot_alert("```Stopping```")
+                    if send_notifications:
+                        await self.discord_client.send_bot_alert("```Stopping```")
+
                     output = await self.interpret_command("stop", args[1:])
-                    if output == " ".join(args[1:]).strip():
+
+                    if output == " ".join(args[1:]).strip() and send_notifications:
                         await self.discord_client.send_bot_alert("```Stopped```")
                     else:
                         await self.discord_client.send_bot_alert("```Error stopping container\n{}```".format(output))
+                   
                     return True
                 case "exec":
                     output = await self.interpret_command("exec -d", args[1:])
-                    await self.discord_client.send_bot_alert("```Executing command on {}: {}\n```".format(args[1], args[2:]))
+                    if send_notifications:
+                        await self.discord_client.send_bot_alert("```Executing command on {}: {}\n```".format(args[1], args[2:]))
                     return True
         return False
 
