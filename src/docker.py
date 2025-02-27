@@ -19,25 +19,21 @@ class Docker(Service):
                         await self.discord_client.send_bot_alert("```\"{}\" status: {}```".format(args[1], output))
                     return True
                 case "start":
-                    if send_notifications:
-                        await self.discord_client.send_bot_alert("```Starting```")
-                    
                     output = await self.interpret_command("start", args[1:])
 
-                    if output == " ".join(args[1:]).strip() and send_notifications:
-                        await self.discord_client.send_bot_alert("```Started```")
+                    if output == " ".join(args[1:]).strip():
+                        if send_notifications:
+                            await self.discord_client.send_bot_alert("```'{}' Started```".format(args[1]))
                     else:
                         await self.discord_client.send_bot_alert("```Error starting container\n{}```".format(output))
                     
                     return True
                 case "stop":
-                    if send_notifications:
-                        await self.discord_client.send_bot_alert("```Stopping```")
-
                     output = await self.interpret_command("stop", args[1:])
 
-                    if output == " ".join(args[1:]).strip() and send_notifications:
-                        await self.discord_client.send_bot_alert("```Stopped```")
+                    if output == " ".join(args[1:]).strip():
+                        if send_notifications:
+                            await self.discord_client.send_bot_alert("```'{}' Stopped```".format(args[1]))
                     else:
                         await self.discord_client.send_bot_alert("```Error stopping container\n{}```".format(output))
                    

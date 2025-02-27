@@ -15,14 +15,18 @@ class Vintage(Service):
                     await self.docker_interface.on_message(True, "docker", ["status", self.container_name])
                     return True
                 case "start":
-                    await self.docker_interface.on_message(True, "docker", ["start", self.container_name])
+                    await self.docker_interface.on_message(True, "docker", ["start", self.container_name], False)
+                    await self.discord_client.send_bot_alert("```Game Started!```")
                     return True
                 case "stop":
-                    await self.docker_interface.on_message(True, "docker", ["exec", self.container_name, "sh -c \"/var/vintage_story/server/server.sh command autosavenow\""])
-                    await self.docker_interface.on_message(True, "docker", ["stop", self.container_name])
+                    await self.docker_interface.on_message(True, "docker", ["exec", self.container_name, "sh -c \"/var/vintage_story/server/server.sh command autosavenow\""], False)
+                    await self.docker_interface.on_message(True, "docker", ["stop", self.container_name], False)
+
+                    await self.discord_client.send_bot_alert("```Game Saved and Stopped!```")
                     return True
                 case "save":
-                    await self.docker_interface.on_message(True, "docker", ["exec", self.container_name, "sh -c \"/var/vintage_story/server/server.sh command autosavenow\""])
+                    await self.docker_interface.on_message(True, "docker", ["exec", self.container_name, "sh -c \"/var/vintage_story/server/server.sh command autosavenow\""], False)
+                    await self.discord_client.send_bot_alert("```Game Saved!```")
                     return True
         return False
 
