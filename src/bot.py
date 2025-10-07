@@ -226,7 +226,7 @@ class Bot (discord.Client):
                             return
 
                     if author.id == 191660743140048896:
-                        await message.channel.send("https://media1.tenor.com/m/l-7hn0tafCgAAAAd/haha-you-have-no-power.gif")
+                        await message.channel.send("https://c.tenor.com/l-7hn0tafCgAAAAd/tenor.gif")
                         return
                     
                     # User Commands
